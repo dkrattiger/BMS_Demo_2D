@@ -14,7 +14,14 @@ close all
 
 %% Add subfolders with dependent libraries to Matlab path
 % ======================================================================= %
-addpath(genpath('libraries'))
+
+% find path for current file
+functionPathName = mfilename('fullpath');
+istringcut = find(functionPathName=='/',1,'last');
+functionPathName = functionPathName(1:istringcut);
+
+% add current libraries folder and all subfolders to path
+addpath(genpath([functionPathName,'libraries']))
 
 %% Solution Options
 % ======================================================================= %
@@ -125,9 +132,6 @@ set(gca,'xticklabels',sym_pts)
 xlabel('Wave number')
 ylabel('Frequency (Hz)')
 
-drawnow
-
-
 %% Remove subfolders from Matlab path
 % ======================================================================= %
-rmpath(genpath('libraries'))
+rmpath(genpath([functionPathName,'libraries']))
