@@ -16,13 +16,15 @@ close all
 %% Add subfolders with dependent libraries to Matlab path
 % ======================================================================= %
 
-% find path for current file
-functionPathName = mfilename('fullpath');
-istringcut = find(functionPathName=='/',1,'last');
-functionPathName = functionPathName(1:istringcut);
+% % find path for current file
+% functionPathName = mfilename('fullpath');
+% istringcut = find(functionPathName=='/',1,'last');
+% functionPathName = functionPathName(1:istringcut);
+% 
+% % add current libraries folder and all subfolders to path
+% addpath(genpath([functionPathName,'libraries']))
 
-% add current libraries folder and all subfolders to path
-addpath(genpath([functionPathName,'libraries']))
+addpath(genpath('libraries'));
 
 %% Solution Options
 % ======================================================================= %
@@ -119,7 +121,6 @@ t_BMS = sum(t_kloop_BMS) + info_BMS.t_up_front;
 fprintf('\nMaximum frequency error: %5.2e%%',e_freq_max);
 fprintf('\nBMS model band-structure calculation time: %5.2fs',t_BMS);
 fprintf('\nfull model band-structure calculation time: %5.2fs\n',t_full);
-% disp(['BMS band-structure calculation time: ',num2str(t_BMS),'s']);
 
 %% plot dispersion
 % ======================================================================= %
@@ -213,4 +214,4 @@ legend([hline(1),hlineBMS(1)],'full','BMS');
 
 %% Remove subfolders from Matlab path
 % ======================================================================= %
-rmpath(genpath([functionPathName,'libraries']))
+% rmpath(genpath('libraries'))
