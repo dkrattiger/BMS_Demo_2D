@@ -44,7 +44,7 @@ R = [r1,r2];
 %% Create frequency vector
 % ======================================================================= %
 
-n_om = 25;
+n_om = 2;
 omega_max = 3e4*2*pi;
 omega = linspace(0,omega_max,n_om);
 
@@ -101,6 +101,8 @@ C_BMS = [];
 options.n_curves = n_curves;
 
 % compute BMS solution
+n_om_BMS = 100;
+omega2 = linspace(0,omega_max,n_om_BMS);
 [kappa_BMS,~,t_wloop_BMS] = dispersion_solver_k_w(omega2,K_BMS,C_BMS,M_BMS,dof_sets_BMS,R,options);
 
 %% plot BMS k(w) solution
@@ -118,7 +120,9 @@ omega_plot = omega(om_plot);
 kappas_plot = {kappa_BMS(curve_plot,om_plot),...
                kappa_full(curve_plot,om_plot)};
 figure(4);clf
-h = dispersion_plot_k_w(omega_plot,kappas_plot,options_plot);
+h1 = dispersion_plot_k_w(omega_plot,kappas_plot,options_plot);
+h2 = dispersion_plot_k_w(omega_plot,kappas_plot,options_plot);
+
 
 
 %% plot dispersion
