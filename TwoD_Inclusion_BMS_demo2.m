@@ -15,13 +15,8 @@ close all
 %% Add subfolders with dependent libraries to Matlab path
 % ======================================================================= %
 
-% find path for current file
-functionPathName = mfilename('fullpath');
-istringcut = find(functionPathName=='/',1,'last');
-functionPathName = functionPathName(1:istringcut);
-
 % add current libraries folder and all subfolders to path
-addpath(genpath([functionPathName,'libraries']))
+addpath(genpath('libraries'))
 
 %% Solution Options
 % ======================================================================= %
@@ -44,9 +39,13 @@ R = [r1,r2];
 %% Create frequency vector
 % ======================================================================= %
 
-n_om = 2;
 omega_max = 3e4*2*pi;
-omega = linspace(0,omega_max,n_om);
+
+n_om = 2;
+omega_full = linspace(0,omega_max,n_om);
+
+n_om_BMS = 100;
+omega_BMS = linspace(0,omega_max,n_om_BMS);
 
 %% Load Model
 % ======================================================================= %
@@ -80,7 +79,7 @@ dof_sets = node2dof(node_sets,2);
 tstart_full = tic;
 C_free = [];
 options.n_curves = n_curves;
-[kappa_full,~,t_wloop_full] = dispersion_solver_k_w(omega,K_free,C_free,M_free,dof_sets,R,options);
+[kappa_full,~,t_wloop_full] = dispersion_solver_k_w(omega_full,K_free,C_free,M_free,dof_sets,R,options);
 
 t_full = toc(tstart_full);
 
@@ -101,41 +100,36 @@ C_BMS = [];
 options.n_curves = n_curves;
 
 % compute BMS solution
-n_om_BMS = 100;
-omega2 = linspace(0,omega_max,n_om_BMS);
-[kappa_BMS,~,t_wloop_BMS] = dispersion_solver_k_w(omega2,K_BMS,C_BMS,M_BMS,dof_sets_BMS,R,options);
+[kappa_BMS,~,t_wloop_BMS] = dispersion_solver_k_w(omega_BMS,K_BMS,C_BMS,M_BMS,dof_sets_BMS,R,options);
 
 %% plot BMS k(w) solution
 % ======================================================================= %
 curve_plot = 1:n_curves;
+
 figure(5);clf;hold on;view(3)
-h1 = plot3(real(kappa_BMS(curve_plot,:)),imag(kappa_BMS(curve_plot,:)),omega/(2*pi),'g.');hold on
-h2 = plot3(real( kappa_full(curve_plot,:)),imag(kappa_full(curve_plot,:)),omega/(2*pi),'ko');hold on
+h1 = plot3(real(kappa_BMS(curve_plot,:)),imag(kappa_BMS(curve_plot,:)),omega_BMS/(2*pi),'g.');hold on
+h2 = plot3(real( kappa_full(curve_plot,:)),imag(kappa_full(curve_plot,:)),omega_full/(2*pi),'ko');hold on
 legend([h1(1),h2(1)],'BMS','Full')
-
-options_plot.MarkerOrder = {'.','o'};
-options_plot.ThreeD = true;
-om_plot = 1:length(omega);
-omega_plot = omega(om_plot);
-kappas_plot = {kappa_BMS(curve_plot,om_plot),...
-               kappa_full(curve_plot,om_plot)};
-figure(4);clf
-h1 = dispersion_plot_k_w(omega_plot,kappas_plot,options_plot);
-h2 = dispersion_plot_k_w(omega_plot,kappas_plot,options_plot);
-
-
 
 %% plot dispersion
 % ======================================================================= %
 
-figure(2);clf
-h1 = plot(kappa_plot,f_full,'k-','linewidth',1.5);hold on
-h2 = plot(kappa_plot,f_BMS,'g--','linewidth',1.5);
-set(gca,'xtick',linspace(0,kappa_plot(end),length(sym_pts)))
-set(gca,'xticklabels',sym_pts)
-xlabel('Wave number')
-ylabel('Frequency (Hz)')
+figure(4);clf
+
+% specify plot options (case sensitive)
+options_plot.Markers = {'o','.'};
+options_plot.LineStyles = {'none','-'};
+options_plot.ThreeD = true;
+options_plot.legendstrings = {'full','BMS'};
+
+% list out plot vectors
+omegas = {omega_full,omega_BMS};
+kappas = {kappa_full(curve_plot,:),kappa_BMS(curve_plot,:)};
+
+% call plotting routine
+h = dispersion_plot_k_w(omegas,kappas,options_plot);
 
 %% Remove subfolders from Matlab path
 % ======================================================================= %
-rmpath(genpath([functionPathName,'libraries']))
+rmpath(genpath('libraries'))
+
