@@ -39,12 +39,13 @@ R = [r1,r2];
 %% Create frequency vector
 % ======================================================================= %
 
-omega_max = 3e4*2*pi;
+omega_max = 10e4*2*pi;
 
-n_om = 2;
+% note, the full solution takes a long time (even with dynamic reduction).
+n_om = 21;
 omega_full = linspace(0,omega_max,n_om);
 
-n_om_BMS = 100;
+n_om_BMS = 101;
 omega_BMS = linspace(0,omega_max,n_om_BMS);
 
 %% Load Model
@@ -76,10 +77,18 @@ drawnow
 dof_sets = node2dof(node_sets,2);
 
 % Full FE model w(k) Dispersion Solution
+% Note this takes a long time (about 200s per freq. pt on my laptop)
 tstart_full = tic;
 C_free = [];
 options.n_curves = n_curves;
+% options.full_eig           = false;
+% options.dynamicReduction   = false;
+
+profile clear
+profile on
 [kappa_full,~,t_wloop_full] = dispersion_solver_k_w(omega_full,K_free,C_free,M_free,dof_sets,R,options);
+
+profile viewer
 
 t_full = toc(tstart_full);
 
@@ -97,6 +106,7 @@ options_BMS.n_CC                  = 12;
 
 % solve for BMS dispersion
 C_BMS = [];
+clear options
 options.n_curves = n_curves;
 
 % compute BMS solution
@@ -131,5 +141,4 @@ h = dispersion_plot_k_w(omegas,kappas,options_plot);
 
 %% Remove subfolders from Matlab path
 % ======================================================================= %
-rmpath(genpath('libraries'))
-
+% rmpath(genpath('libraries'))
